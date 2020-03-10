@@ -19,7 +19,6 @@ package containerizedworkload
 import (
 	"context"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -28,10 +27,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	ctrl "sigs.k8s.io/controller-runtime"
 
-	"github.com/crossplane/crossplane-runtime/pkg/event"
-	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	oamv1alpha2 "github.com/crossplane/crossplane/apis/oam/v1alpha2"
 
 	"github.com/crossplane/addon-oam-kubernetes-remote/pkg/reconciler/workload"
@@ -56,22 +52,9 @@ var (
 	deploymentGroupVersionKind = appsv1.SchemeGroupVersion.WithKind(deploymentKind)
 )
 
-// SetupContainerizedWorkload adds a controller that reconciles ContainerizedWorkloads.
-func SetupContainerizedWorkload(mgr ctrl.Manager, l logging.Logger) error {
-	name := "oam/" + strings.ToLower(oamv1alpha2.ContainerizedWorkloadGroupKind)
-
-	return ctrl.NewControllerManagedBy(mgr).
-		Named(name).
-		For(&oamv1alpha2.ContainerizedWorkload{}).
-		Complete(workload.NewReconciler(mgr,
-			workload.Kind(oamv1alpha2.ContainerizedWorkloadGroupVersionKind),
-			workload.WithLogger(l.WithValues("controller", name)),
-			workload.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))),
-			workload.WithPacker(workload.NewPackagerWithWrappers(containerizedWorkloadPackager, workload.KubeAppWrapper)),
-		))
-}
-
-func containerizedWorkloadPackager(ctx context.Context, w workload.Workload) (runtime.Object, error) {
+// Packager instructs the workload controller how to
+// package a ContainerizedWorkload.
+func Packager(ctx context.Context, w workload.Workload) (runtime.Object, error) {
 	cw, ok := w.(*oamv1alpha2.ContainerizedWorkload)
 	if !ok {
 		return nil, errors.New(errNotContainerizedWorkload)

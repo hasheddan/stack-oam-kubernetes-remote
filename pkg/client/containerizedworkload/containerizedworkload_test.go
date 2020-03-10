@@ -149,14 +149,14 @@ func TestContainerizedWorkloadPackager(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			r, err := containerizedWorkloadPackager(context.TODO(), tc.args.w)
+			r, err := Packager(context.TODO(), tc.args.w)
 
 			if diff := cmp.Diff(tc.want.err, err, test.EquateErrors()); diff != "" {
-				t.Errorf("\nReason: %s\ncontainerizedWorkloadPackager(...): -want error, +got error:\n%s", tc.reason, diff)
+				t.Errorf("\nReason: %s\nPackager(...): -want error, +got error:\n%s", tc.reason, diff)
 			}
 
 			if diff := cmp.Diff(tc.want.result, r); diff != "" {
-				t.Errorf("\nReason: %s\ncontainerizedWorkloadPackager(...): -want, +got:\n%s", tc.reason, diff)
+				t.Errorf("\nReason: %s\nPackager(...): -want, +got:\n%s", tc.reason, diff)
 			}
 		})
 	}

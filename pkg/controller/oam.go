@@ -21,15 +21,18 @@ import (
 
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 
-	"github.com/crossplane/addon-oam-kubernetes-remote/pkg/controller/containerizedworkload"
+	cwlocal "github.com/crossplane/addon-oam-kubernetes-remote/pkg/controller/local/containerizedworkload"
+	cwremote "github.com/crossplane/addon-oam-kubernetes-remote/pkg/controller/remote/containerizedworkload"
 )
 
 // Setup creates all Kubernetes Remote controllers with the supplied logger and
 // adds them to the supplied manager.
 func Setup(mgr ctrl.Manager, l logging.Logger) error {
 	for _, setup := range []func(ctrl.Manager, logging.Logger) error{
-		containerizedworkload.SetupContainerizedWorkload,
-		containerizedworkload.SetupManualScalerTrait,
+		cwremote.SetupContainerizedWorkload,
+		cwremote.SetupManualScalerTrait,
+		cwlocal.SetupContainerizedWorkload,
+		cwlocal.SetupManualScalerTrait,
 	} {
 		if err := setup(mgr, l); err != nil {
 			return err

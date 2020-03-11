@@ -141,6 +141,10 @@ func NewReconciler(m ctrl.Manager, trait Kind, p Kind, o ...ReconcilerOption) *R
 		return resource.MustCreateObject(schema.GroupVersionKind(p), m.GetScheme()).(Object)
 	}
 
+	// Panic early if we've been asked to reconcile a trait or package kind that
+	// has not been registered with our controller manager's scheme.
+	_, _ = nt(), np()
+
 	r := &Reconciler{
 		client:     m.GetClient(),
 		newTrait:   nt,

@@ -121,6 +121,10 @@ func NewReconciler(m ctrl.Manager, workload Kind, o ...ReconcilerOption) *Reconc
 		return resource.MustCreateObject(schema.GroupVersionKind(workload), m.GetScheme()).(Workload)
 	}
 
+	// Panic early if we've been asked to reconcile a workload kind that has not
+	// been registered with our controller manager's scheme.
+	_ = nw()
+
 	r := &Reconciler{
 		client:      m.GetClient(),
 		newWorkload: nw,
